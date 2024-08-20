@@ -1,4 +1,7 @@
 *.pyc
 __pycache__/
 
+
+mysql://root:alUhRnmAnbbfkREZucXSBZXEBRafpjez@viaduct.proxy.rlwy.net:34807/railway
+
 .env
