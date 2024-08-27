@@ -70,7 +70,7 @@ async def login_for_access_token(
         user=UserLoggin(
             user_id=user.user_id,
             full_name=user.full_name,
-            mail=user.email,
+            mail=user.mail,
             user_role=user.user_role
         ),
         access_token=access_token
