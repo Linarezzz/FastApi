@@ -1,6 +1,7 @@
-from typing import Annotated, List
+from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from appv1.crud.permissions import get_all_permissions
 from appv1.crud.users import get_user_by_email, get_user_by_id
 from appv1.schemas.user import ResponseLoggin, UserLoggin
 from core.security import create_access_token, verify_password, verify_token
@@ -66,6 +67,8 @@ async def login_for_access_token(
         data={"sub": user.user_id, "rol":user.user_role}
     )
     
+    permisos = get_all_permissions(db, user.user_role)
+
     return ResponseLoggin(
         user=UserLoggin(
             user_id=user.user_id,
@@ -73,5 +76,6 @@ async def login_for_access_token(
             mail=user.mail,
             user_role=user.user_role
         ),
+        permissions=permisos,
         access_token=access_token
     )
