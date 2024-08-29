@@ -1,4 +1,3 @@
-import enum
 from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session

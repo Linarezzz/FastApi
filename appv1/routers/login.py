@@ -2,8 +2,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from appv1.crud.permissions import get_all_permissions
-from appv1.crud.users import get_user_by_email, get_user_by_id
-from appv1.schemas.user import ResponseLoggin, UserLoggin
+from appv1.crud.users import get_user_by_email, get_user_by_id, create_user_sql
+from appv1.schemas.user import ResponseLoggin, UserLoggin, UserCreate
 from core.security import create_access_token, verify_password, verify_token
 from db.database import get_db
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -54,19 +54,19 @@ def authenticate_user(username: str, password: str, db: Session):
 @router.post("/token", response_model=ResponseLoggin)
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    db: Session= Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(
             status_code=401,
-            detail="Datos incorrectos en email o password",
+            detail="Datos Incorrectos en email o password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = create_access_token(
         data={"sub": user.user_id, "rol":user.user_role}
     )
-    
+
     permisos = get_all_permissions(db, user.user_role)
 
     return ResponseLoggin(
@@ -79,3 +79,13 @@ async def login_for_access_token(
         permissions=permisos,
         access_token=access_token
     )
+
+@router.post("/register")
+async def register_user(
+    user: UserCreate,
+    db: Session = Depends(get_db)
+):
+    user.user_role = 'Cliente'
+    respuesta = create_user_sql(db, user)
+    if respuesta:
+        return {"mensaje":"usuario registrado con éxito"}
